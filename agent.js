@@ -176,9 +176,9 @@ const client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
 });
 
-async function runAgent(prompt) {
-    const input = [{role: "user", content: prompt}];
+const context = [{role: "user", content: prompt}];
 
+async function runAgent(prompt) {
     console.log(`🤖 Working on... ${prompt} \n`);
 
     let iterationCount = 0;
@@ -190,12 +190,12 @@ async function runAgent(prompt) {
             
             const response = await client.responses.create({
                 model: "gpt-4o",
-                input: input,
+                input: context,
                 tools: TOOLS,
                 tool_choice: "auto"
             });
 
-            input.push(...response.output)
+            context.push(...response.output)
 
             const toolCalls = response.output.filter((o) => o.type === "function_call");
 
@@ -227,7 +227,7 @@ async function runAgent(prompt) {
                     })
                 }
 
-                input.push(...toolResults);
+                context.push(...toolResults);
             } else {
                 console.log(`\n✅Done: ${response.output_text}`)
                 break
@@ -244,7 +244,7 @@ async function runAgent(prompt) {
             }
             
             console.error("⚠️ Continuing despite error...");
-            input.push({
+            context.push({
                 role: "assistant", 
                 content: `I encountered an error: ${error.message}. Please try a different approach.`
             });
