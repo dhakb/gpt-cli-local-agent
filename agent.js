@@ -15,6 +15,20 @@ const rl = readline.createInterface({
 
 const exec = util.promisify(child_process.exec);
 
+async function askForConfirmation(command) {
+    while (true) {
+        const answer = await rl.question(`\n⚠️  Confirm command execution:\nCommand: ${command}\n\nRun this command? (y/n): `);
+        const normalized = answer.toLowerCase().trim();
+        
+        if (normalized === 'y' || normalized === 'yes') {
+            return true;
+        } else if (normalized === 'n' || normalized === 'no') {
+            return false;
+        } else {
+            console.log("Please enter 'y' for yes or 'n' for no.");
+        }
+    }
+}
 
 const TOOLS = [
     {
@@ -96,7 +110,7 @@ const TOOLS = [
     {
         "type": "function",
         "name": "run_bash",
-        "description": "Run a bash command and return the output",
+        "description": "Run a bash command and return the output (requires human confirmation)",
         "parameters": {
             "type": "object",
             "properties": {
@@ -192,6 +206,13 @@ async function executeTool(toolName, args) {
                 if (!command) {
                     throw new Error("Command is required for run_bash operation");
                 }
+                
+                const confirmed = await askForConfirmation(command);
+                
+                if (!confirmed) {
+                    return "Command execution cancelled by user. Please suggest a different approach.";
+                }
+                
                 try {
                     const res = await exec(command);
                     return `stdout:\n${res.stdout}\nstderr:\n${res.stderr}`;
@@ -218,9 +239,11 @@ const client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
 });
 
-const context = [{role: "user", content: prompt}];
+const context = [];
 
 async function runAgent(prompt) {
+    context.push({role: "user", content: prompt});
+    
     console.log(`🤖 Working on... ${prompt} \n`);
 
     let iterationCount = 0;
