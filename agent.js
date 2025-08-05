@@ -51,8 +51,28 @@ const TOOLS = [
     },
     {
         "type": "function",
+        "name": "create_file",
+        "description": "Create a new file with specified content",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "path": {
+                    "type": "string",
+                    "descriptions": "Path to the file to create"
+                },
+                "content": {
+                    "type": "string",
+                    "description": "Content to write to the new file"
+                }
+            }
+        },
+        "required": ["path", "content"],
+        "additionalProperties": false
+    },
+    {
+        "type": "function",
         "name": "edit_file",
-        "description": "Edit a file by replacing old text with new text",
+        "description": "Edit an existing file by replacing old text with new text",
         "parameters": {
             "type": "object",
             "properties": {
@@ -70,7 +90,7 @@ const TOOLS = [
                 }
             }
         },
-        "required": ["path"],
+        "required": ["path", "old_text", "new_text"],
         "additionalProperties": false
     },
     {
@@ -119,27 +139,49 @@ async function executeTool(toolName, args) {
                     throw new Error(`Failed to read file '${path}': ${error.message}`);
                 }
             }
+            case "create_file": {
+                const path = args.path;
+                const content = args.content;
+
+                if (!path) {
+                    throw new Error("File path is required for create_file operation");
+                }
+                if (!content) {
+                    throw new Error("Content is required for create_file operation");
+                }
+
+                try {
+                    await fs.writeFile(path, content);
+                    return "File created";
+                } catch (error) {
+                    if (error.code === 'EEXIST') {
+                        throw new Error(`File '${path}' already exists`);
+                    }
+                    throw new Error(`Failed to create file '${path}': ${error.message}`);
+                }
+            }
             case "edit_file": {
-                const path = args.path ?? ".";
+                const path = args.path;
                 const old_text = args.old_text;
                 const new_text = args.new_text;
 
                 if (!path) {
                     throw new Error("File path is required for edit_file operation");
                 }
+                if (!old_text) {
+                    throw new Error("Old text is required for edit_file operation");
+                }
+                if (!new_text) {
+                    throw new Error("New text is required for edit_file operation");
+                }
 
                 try {
-                    if (old_text === "") {
-                        await fs.writeFile(path, new_text);
-                        return "File created";
-                    }
-
                     const file_content = await fs.readFile(path, "utf8");
                     const new_file_content = file_content.replace(old_text, new_text);
                     await fs.writeFile(path, new_file_content);
                     return "File edited";
                 } catch (error) {
-                    if (error.code === 'ENOENT' && old_text !== "") {
+                    if (error.code === 'ENOENT') {
                         throw new Error(`File '${path}' does not exist and cannot be edited`);
                     }
                     throw new Error(`Failed to edit file '${path}': ${error.message}`);
