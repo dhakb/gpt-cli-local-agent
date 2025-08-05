@@ -245,11 +245,25 @@ const MAX_CONTEXT_WINDOW = 128000; // GPT-4o context window
 
 function displayTokenUsage() {
     const usagePercentage = ((totalTokens / MAX_CONTEXT_WINDOW) * 100).toFixed(2);
-    console.log(`📊 Context window: ${usagePercentage}% used (${totalTokens.toLocaleString()}/${MAX_CONTEXT_WINDOW.toLocaleString()})`);
+    const usageText = `📊 Context window: ${usagePercentage}% used (${totalTokens.toLocaleString()}/${MAX_CONTEXT_WINDOW.toLocaleString()})`;
+    const warningText = usagePercentage > 80 ? `⚠️  Warning: High token usage (${usagePercentage}%)` : '';
     
-    if (usagePercentage > 80) {
-        console.log(`⚠️  Warning: High token usage (${usagePercentage}%)`);
+   
+    const lines = [usageText, warningText].filter(line => line.length > 0);
+    const maxWidth = Math.max(...lines.map(line => line.length));
+    const boxWidth = maxWidth + 4;
+    
+    const topBorder = '┌' + '─'.repeat(boxWidth - 2) + '┐';
+    const bottomBorder = '└' + '─'.repeat(boxWidth - 2) + '┘';
+    
+    console.log(topBorder);
+    console.log('│ ' + usageText.padEnd(boxWidth - 3) + '│');
+    
+    if (warningText) {
+        console.log('│ ' + warningText.padEnd(boxWidth - 3) + '│');
     }
+    
+    console.log(bottomBorder);
 }
 
 function updateTokenUsage(usage) {
@@ -354,7 +368,6 @@ async function main() {
     
     while (true) {
         try {
-            console.log('--------------------------------');
             displayTokenUsage();
             const prompt = await rl.question("\n💬 What would you like me to do? (or 'quit' to exit, 'reset' for new session)\n> ")
             
