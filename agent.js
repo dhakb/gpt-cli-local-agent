@@ -239,12 +239,36 @@ const client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
 });
 
+
+let totalTokens = 0;
+const MAX_CONTEXT_WINDOW = 128000; // GPT-4o context window
+
+function displayTokenUsage() {
+    const usagePercentage = ((totalTokens / MAX_CONTEXT_WINDOW) * 100).toFixed(2);
+    console.log(`📊 Context window: ${usagePercentage}% used (${totalTokens.toLocaleString()}/${MAX_CONTEXT_WINDOW.toLocaleString()})`);
+    
+    if (usagePercentage > 80) {
+        console.log(`⚠️  Warning: High token usage (${usagePercentage}%)`);
+    }
+}
+
+function updateTokenUsage(usage) {
+    if (usage) {
+        totalTokens += usage.total_tokens || 0;
+    }
+}
+
+function resetTokenUsage() {
+    totalTokens = 0;
+}
+
 const context = [];
 
 async function runAgent(prompt) {
     context.push({role: "user", content: prompt});
     
-    console.log(`🤖 Working on... ${prompt} \n`);
+    console.log(`🤖 Working on... ${prompt}`);
+    console.log('');
 
     let iterationCount = 0;
     const MAX_ITERATIONS = 20;
@@ -259,6 +283,8 @@ async function runAgent(prompt) {
                 tools: TOOLS,
                 tool_choice: "auto"
             });
+
+            updateTokenUsage(response.usage);
 
             context.push(...response.output)
 
@@ -323,13 +349,27 @@ async function runAgent(prompt) {
 
 
 async function main() {
+    console.log("LLM Agetic loop cli equiped with tools");
+    console.log("💡 Type 'quit' to exit or 'reset' to start a new session\n");
+    
     while (true) {
         try {
-            const prompt = await rl.question("\n💬 What would you like me to do? (or 'quit' to exit)\n> ")
+            console.log('--------------------------------');
+            displayTokenUsage();
+            const prompt = await rl.question("\n💬 What would you like me to do? (or 'quit' to exit, 'reset' for new session)\n> ")
+            
+            
             if (prompt.toLowerCase() === "quit") {
                 rl.close();
                 console.log("\n👋Goodbye!");
                 break;
+            }
+            
+            if (prompt.toLowerCase() === "reset") {
+                resetTokenUsage();
+                context.length = 0;
+                console.log("🔄 Session reset - Starting fresh conversation");
+                continue;
             }
 
             await runAgent(prompt);
