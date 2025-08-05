@@ -281,7 +281,7 @@ const context = [];
 async function runAgent(prompt) {
     context.push({role: "user", content: prompt});
     
-    console.log(`🤖 Working on... ${prompt}`);
+    console.log(`\n🤖 Working on... ${prompt}`);
     console.log('');
 
     let iterationCount = 0;
@@ -334,8 +334,8 @@ async function runAgent(prompt) {
 
                 context.push(...toolResults);
             } else {
-                console.log(`\n✅Done: ${response.output_text}`)
-                break
+                console.log(`\n✅Done: ${response.output_text}\n`)
+                break;
             }
         } catch (error) {
             console.error(`❌ Agent execution error: ${error.message}`);
@@ -363,13 +363,13 @@ async function runAgent(prompt) {
 
 
 async function main() {
-    console.log("LLM Agetic loop cli equiped with tools");
+    console.log("\n LLM Agetic loop cli equiped with tools \n");
     console.log("💡 Type 'quit' to exit or 'reset' to start a new session\n");
     
     while (true) {
         try {
             displayTokenUsage();
-            const prompt = await rl.question("\n💬 What would you like me to do? (or 'quit' to exit, 'reset' for new session)\n> ")
+            const prompt = await rl.question("\n💬 What would you like me to do? (or 'quit' to exit, 'reset' for new session)\n \n> ")
             
             
             if (prompt.toLowerCase() === "quit") {
