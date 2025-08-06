@@ -282,8 +282,8 @@ const context = [];
 async function runAgent(prompt) {
     context.push({role: "user", content: prompt});
     
-    console.log(`\n🤖 Working on... ${prompt}`);
-    console.log('');
+    console.log(`\n 🚀 Starting agent loop... \n`);
+    console.log(`\n🤖 Working on... ${prompt.slice(0, 50)}... \n`);
 
     let iterationCount = 0;
     const MAX_ITERATIONS = 20;
@@ -291,6 +291,8 @@ async function runAgent(prompt) {
     while (iterationCount < MAX_ITERATIONS) {
         try {
             iterationCount++;
+            
+            console.log(`\n🔄 Iteration ${iterationCount}/${MAX_ITERATIONS}... \n`);
             
             const response = await client.responses.create({
                 model: MODEL,
@@ -306,10 +308,11 @@ async function runAgent(prompt) {
             const toolCalls = response.output.filter((o) => o.type === "function_call");
 
             if (toolCalls.length) {
+                console.log(`🔧 Executing ${toolCalls.length} tool call(s)... \n`);
                 const toolResults = [];
 
                 for (let call of toolCalls) {
-                    console.log(`🔧 Using tool: ${call.name}`)
+                    console.log(`   > Using tool: ${call.name}`)
                     
                     let toolArgs;
                     try {
@@ -335,6 +338,7 @@ async function runAgent(prompt) {
 
                 context.push(...toolResults);
             } else {
+                console.log(`\n💭 Agent thinking... \n`);
                 console.log(`\n✅Done: ${response.output_text}\n`)
                 break;
             }
@@ -359,12 +363,13 @@ async function runAgent(prompt) {
 
     if (iterationCount >= MAX_ITERATIONS) {
         console.error("❌ Maximum iterations reached. The agent may be stuck in a loop.");
+        console.log(`🔄 Total iterations used: ${iterationCount}`);
     }
 }
 
 
 async function main() {
-    console.log("\n LLM Agetic loop cli equiped with tools \n");
+    console.log("\n Agetic loop cli equiped with tools powered by OpenAI\n");
     console.log("💡 Type 'quit' to exit or 'reset' to start a new session\n");
     
     while (true) {
