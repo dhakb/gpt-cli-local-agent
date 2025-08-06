@@ -242,6 +242,7 @@ const client = new OpenAI({
 
 let totalTokens = 0;
 const MAX_CONTEXT_WINDOW = 128000; // GPT-4o context window
+const MODEL = "gpt-4o";
 
 function displayTokenUsage() {
     const usagePercentage = ((totalTokens / MAX_CONTEXT_WINDOW) * 100).toFixed(2);
@@ -292,7 +293,7 @@ async function runAgent(prompt) {
             iterationCount++;
             
             const response = await client.responses.create({
-                model: "gpt-4o",
+                model: MODEL,
                 input: context,
                 tools: TOOLS,
                 tool_choice: "auto"
