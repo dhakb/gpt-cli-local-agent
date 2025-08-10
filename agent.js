@@ -167,7 +167,7 @@ async function executeTool(toolName, args) {
                 }
 
                 try {
-                    await fs.writeFile(path, content);
+                    await fs.writeFile(path, content, {flag: "wx"});
                     return "File created";
                 } catch (error) {
                     if (error.code === 'EEXIST') {
