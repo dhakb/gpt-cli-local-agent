@@ -42,7 +42,7 @@ const TOOLS = [
             "properties": {
                 "path": {
                     "type": "string",
-                    "descriptions": "Path to directory to list content of it (defaults to current directory)"
+                    "description": "Path to directory to list content of it (defaults to current directory)"
                 }
             },
         },
@@ -58,7 +58,7 @@ const TOOLS = [
             "properties": {
                 "path": {
                     "type": "string",
-                    "descriptions": "Path to the file to read"
+                    "description": "Path to the file to read"
                 }
             }
         },
@@ -74,7 +74,7 @@ const TOOLS = [
             "properties": {
                 "path": {
                     "type": "string",
-                    "descriptions": "Path to the file to create"
+                    "description": "Path to the file to create"
                 },
                 "content": {
                     "type": "string",
@@ -94,7 +94,7 @@ const TOOLS = [
             "properties": {
                 "path": {
                     "type": "string",
-                    "descriptions": "Path to the file to edit"
+                    "description": "Path to the file to edit"
                 },
                 "old_text": {
                     "type": "string",
@@ -118,7 +118,7 @@ const TOOLS = [
             "properties": {
                 "command": {
                     "type": "string",
-                    "descriptions": "The bash command to run"
+                    "description": "The bash command to run"
                 }
             }
         },
