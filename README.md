@@ -63,3 +63,7 @@ If an error occurs (e.g., file not found, invalid command), the script will disp
 
 The script tracks token usage for OpenAI API calls and displays a warning if usage exceeds 80% of the context window.
 
+#### Session control
+
+- **Reset context**: Type `reset` at the prompt to clear the conversation history and token usage, starting a fresh session.
+
